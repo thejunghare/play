@@ -2,6 +2,7 @@ const sdk = require("node-appwrite");
 const fs = require("fs");
 const path = require("path");
 const XLSX = require("xlsx");
+const { count } = require("console");
 
 let client = new sdk.Client();
 
@@ -168,7 +169,7 @@ async function uploadDataWithRelationship() {
 
 async function uploadDataFromExcel() {
   try {
-    const membersWorkbook = XLSX.readFile("book.xlsx");
+    const membersWorkbook = XLSX.readFile("final.xlsx");
     const membersSheet = membersWorkbook.Sheets["Sheet1"];
     const MEMBERDATA = XLSX.utils.sheet_to_json(membersSheet);
 
@@ -221,12 +222,65 @@ async function uploadDataFromExcel() {
   }
 }
 
+async function deleteAllDocuments() {
+  try {
+    let hasMore = true;
+
+    while (hasMore) {
+      const mainDocs = await databases.listDocuments(DATABASEID, FORMCOLLECTIONID);
+      if (mainDocs.documents.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      // Delete related documents in parallel
+      const deletePromises = mainDocs.documents.map(async (doc) => {
+        const docId = doc.$id;
+
+        // Fetch related documents
+        const relatedDocs = await databases.listDocuments(DATABASEID, MEMBERCOLLECTIONID, [
+          sdk.Query.equal('form', docId)
+        ]);
+
+        // Delete related documents in parallel
+        const deleteRelatedPromises = relatedDocs.documents.map(relatedDoc =>
+          databases.deleteDocument(DATABASEID, MEMBERCOLLECTIONID, relatedDoc.$id)
+        );
+
+        await Promise.all(deleteRelatedPromises);
+
+        // Delete the main document
+        await databases.deleteDocument(DATABASEID, FORMCOLLECTIONID, docId);
+      });
+
+      // Wait for all deletions to complete
+      await Promise.all(deletePromises);
+    }
+
+    console.log("All documents and related documents deleted successfully!");
+  } catch (error) {
+    console.error(`Error deleting documents: ${error.message}`);
+  }
+}
+
+
+async function countDocument() {
+  let count = 0;
+  try {
+    result = await databases.listDocuments(
+      DATABASEID,
+      MEMBERCOLLECTIONID,
+    );
+    count = result.total;
+    console.log(`${count} document fetched!`)
+  } catch (error) {
+    console.log(`Error deleting doc ${error}`)
+  }
+}
+
 async function runTasks() {
-  //await getSurvey();
-  //wait getRelationshipSurvey();
-  //await uploadData();
-  // await uploadDataWithRelationship();
-  await uploadDataFromExcel();
+  await countDocument();
+  // setTimeout(runTasks, 5000);
 }
 
 runTasks();
