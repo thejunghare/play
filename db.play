@@ -1,0 +1,38 @@
+const { Client } = require('pg');
+
+const client = new Client({
+    user: 'postgres',
+    password: '1010',
+    host: 'localhost',
+    port: 5432,
+    database: 'paddy',
+});
+
+client
+    .connect()
+    .then(() => {
+        // console.log('Connected to Postgres');
+        const insert =
+            `insert into users(personid, fname) values (3, 'john')`;
+
+        client.query(insert, (err, result) => {
+            if (err) {
+                console.log(`error inserting data`, err);
+                client.end();
+                return
+            } else {
+                const select = `select * from users`;
+                client.query(select, (err, result) => {
+                    if (err) {
+                        console.log(`error inserting data`, err);
+                    } else {
+                        console.log(result.rows);
+                    }
+                    client.end();
+                })
+            }
+        })
+    })
+    .catch((err) => {
+        console.error(`Error connecting to Postgres: ${err.message}`);
+    });
