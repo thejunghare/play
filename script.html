@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyD57N2Ewp8UVtcXKmVMFyP1HeTBksh4iww",
+            authDomain: "my-project-9714d.firebaseapp.com",
+            projectId: "my-project-9714d",
+            storageBucket: "my-project-9714d.firebasestorage.app",
+            messagingSenderId: "84976519917",
+            appId: "1:84976519917:web:1294f53b957c48e38f5ae4",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        function getAllDocuments() {
+            return firebase
+                .firestore()
+                .collection("student")
+                .get()
+                .then((documents) => {
+                    documents.forEach((document) => {
+                        console.info(document.id, document.data());
+                    });
+                });
+        }
+
+        function realTimeDocument() {
+            return firebase
+                .firestore()
+                .collection("student")
+                .onSnapshot((documents) => {
+                    documents.docChanges().forEach(document => {
+                        if (document.type === "added") {
+                            console.log(document.doc.data())
+                        }
+                    })
+                });
+        }
+
+
+
+        window.api = { getAllDocuments, realTimeDocument };
+    </script>
+</body>
+
+</html>
