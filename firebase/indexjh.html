@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Firebase Realtime CRUD</title>
+
+    <!-- firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <!-- firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+    <!-- Realtime database -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
+  </head>
+
+  <body>
+    <script type="module">
+      const firebaseConfig = {
+        apiKey: "AIzaSyD57N2Ewp8UVtcXKmVMFyP1HeTBksh4iww",
+        authDomain: "my-project-9714d.firebaseapp.com",
+        projectId: "my-project-9714d",
+        storageBucket: "my-project-9714d.firebasestorage.app",
+        messagingSenderId: "84976519917",
+        appId: "1:84976519917:web:1294f53b957c48e38f5ae4",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      // firestore -> add, update, delete, get, where, onSnapshot
+
+      // mongodb -> db.collection().find
+      // firebstore -> db.collection().get()
+      async function readAllDocuments() {
+        try {
+          let snapshot = await db.collection("student").get();
+
+          if (snapshot) {
+            snapshot.forEach((doc) => {
+              console.log(doc.data());
+            });
+          }
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      async function readAllDocumentsWithFilter() {
+        try {
+          let snapshot = await db
+            .collection("student")
+            .where("age", "==", 18)
+            .get();
+
+          if (snapshot) {
+            snapshot.forEach((doc) => {
+              console.log(doc.data());
+            });
+          }
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      async function readSingleDocuments(id) {
+        try {
+          let snapshot = await db.collection("student").doc(id).get();
+
+          if (snapshot) {
+            console.log(doc.data());
+          }
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      async function readAllDocumentsInRealTimePrasad() {
+        try {
+          let doc = await db.collection("student").onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+              if (change.type == "added") {
+                change.doc.data();
+              }
+            });
+          });
+
+          console.log(doc);
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      function readAllDocumentsInRealTimeManthan() {
+        try {
+          db.collection("student").onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+              if (change.type == "added") {
+                console.log(change.doc.data());
+              }
+            });
+          });
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      window.api = {
+        readAllDocuments,
+        readSingleDocuments,
+        readAllDocumentsWithFilter,
+        readAllDocumentsInRealTimeManthan,
+        readAllDocumentsInRealTimePrasad,
+      };
+    </script>
+  </body>
+</html>

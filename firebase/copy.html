@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Firebase Realtime CRUD</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <script type="module">
+      const firebaseConfig = {
+        apiKey: "AIzaSyD57N2Ewp8UVtcXKmVMFyP1HeTBksh4iww",
+        authDomain: "my-project-9714d.firebaseapp.com",
+        projectId: "my-project-9714d",
+        storageBucket: "my-project-9714d.firebasestorage.app",
+        messagingSenderId: "84976519917",
+        appId: "1:84976519917:web:1294f53b957c48e38f5ae4",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      async function writedata(objectname, objectdocument, name, email) {
+        let ref = firebase.database().ref(`${objectname}/${objectdocument}`);
+
+        const data = { name, email };
+
+        await ref.set({
+          name,
+          email,
+        });
+
+        console.info(`data created  ${JSON.stringify(data)}`);
+      }
+
+      async function readwithfilter() {
+        try {
+          let snapshot = await firebase
+            .firestore()
+            .collection("student")
+            .where("name", "<", "z")
+            .get();
+
+          if (snapshot) {
+            snapshot.forEach((doc) => {
+              console.log(doc.id, "=>", doc.data());
+            });
+          }
+        } catch (e) {
+          console.log("something went wrong ", e);
+        }
+      }
+
+      window.api = { writedata, readwithfilter };
+    </script>
+  </body>
+</html>

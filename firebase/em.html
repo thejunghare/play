@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Firebase Realtime CRUD</title>
+
+    <!-- firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <!-- firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+    <!-- Realtime database -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
+  </head>
+  <body>
+    <script type="module">
+      const firebaseConfig = {
+        apiKey: "AIzaSyD57N2Ewp8UVtcXKmVMFyP1HeTBksh4iww",
+        authDomain: "my-project-9714d.firebaseapp.com",
+        projectId: "my-project-9714d",
+        storageBucket: "my-project-9714d.firebasestorage.app",
+        messagingSenderId: "84976519917",
+        appId: "1:84976519917:web:1294f53b957c48e38f5ae4",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      // const db = firebase.firestore();
+      const db = firebase.database();
+
+      // firestore -> updateDocument, delete, get(Read), add/createDocument, where - filtering out the data
+
+      // db.collection.find($sort{})
+
+      /*{
+              name: "aryan"
+              age: 18
+            }*/
+
+      //db.collection.creatIndex({background:true})
+
+      async function fetchwithfilter() {
+        try {
+          let snapshot = await db
+            .collection("student")
+            .where("name", "<", "5")
+            .get();
+
+          if (snapshot) {
+            snapshot.forEach((doc) => {
+              console.log(doc.data());
+            });
+          }
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      // set, update, remove
+      //create, update
+      function insertdata(collection, id, name, age, gender) {
+        try {
+          let snapshot = db.ref(`${collection}/${id}`).set({
+            name,
+            age,
+            gender,
+          });
+
+          console.log(`data created ${snapshot}`);
+        } catch (e) {
+          console.log(`something went wrong ${e}`);
+        }
+      }
+
+      window.api = { fetchwithfilter, insertdata };
+    </script>
+  </body>
+</html>
